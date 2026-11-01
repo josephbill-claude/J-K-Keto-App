@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>J &amp; K’s Keto Meals</title>
+<meta name="description" content="Keto recipes that refresh every day, with filters and a weekly shopping list.">
+<meta name="theme-color" content="#4A6A2C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="J&amp;K Keto">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EAF0E2; --surface:#FBFCF8; --ink:#1E2A19; --muted:#5A6851;
+  --avocado:#4A6A2C; --avocado-soft:#D5E2C3; --salmon:#E07A62; --butter:#F1CF5E;
+  --line:#C9D5BA; --on-avocado:#FBFCF8;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141A11; --surface:#1D2618; --ink:#E9F0DF; --muted:#A3B396;
+    --avocado:#9CC46A; --avocado-soft:#2C3A22; --salmon:#F0937C; --butter:#E8C85A;
+    --line:#33412A; --on-avocado:#141A11;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141A11; --surface:#1D2618; --ink:#E9F0DF; --muted:#A3B396;
+  --avocado:#9CC46A; --avocado-soft:#2C3A22; --salmon:#F0937C; --butter:#E8C85A;
+  --line:#33412A; --on-avocado:#141A11;
+  color-scheme: dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+h1,h2,h3{font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif;line-height:1.1;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--salmon);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding:20px 18px 64px}
+
+header{padding:12px 0 20px}
+h1{font-size:clamp(2.3rem,10vw,4rem);font-weight:800;letter-spacing:-0.035em}
+h1 .dot{display:inline-block;width:.42em;height:.42em;border-radius:50%;background:var(--salmon);margin-left:.08em;vertical-align:.08em}
+.lede{color:var(--muted);margin:10px 0 0;max-width:36ch}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 6px}
+.chip{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px;font-size:.92rem;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip[aria-pressed="true"]::before{content:"✕";font-size:.75em}
+.filter-note{font-size:.85rem;color:var(--muted);margin:6px 0 0}
+
+.meals{display:flex;gap:4px;margin:18px 0 0;border-bottom:1.5px solid var(--line);overflow-x:auto}
+.meal{background:none;border:0;padding:10px 12px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1.5px;white-space:nowrap}
+.meal[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--avocado)}
+
+.deal-bar{display:flex;gap:10px;align-items:center;margin:20px 0 16px;flex-wrap:wrap}
+.btn-deal{background:var(--avocado);color:var(--on-avocado);border:0;border-radius:14px;padding:14px 22px;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;font-size:1.08rem;display:inline-flex;gap:10px;align-items:center}
+.btn-deal svg{transition:transform .5s ease}
+.btn-deal.spin svg{transform:rotate(360deg)}
+.btn-ai{background:transparent;border:1.5px solid var(--avocado);color:var(--avocado);border-radius:14px;padding:12px 16px;font-weight:600}
+.btn-ai[disabled]{opacity:.55;cursor:wait}
+.count{font-size:.85rem;color:var(--muted);margin-left:auto}
+
+.hand{display:grid;gap:14px}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;overflow:hidden}
+.card.new{animation:deal .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes deal{from{opacity:0;transform:translateY(14px) rotate(-1.5deg)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card.new{animation:none}.btn-deal svg{transition:none}}
+.card-head{display:grid;grid-template-columns:1fr auto;gap:10px;padding:18px 18px 14px;width:100%;text-align:left;background:none;border:0}
+.card h2{font-size:1.32rem;font-weight:700;letter-spacing:-0.015em}
+.blurb{color:var(--muted);margin:6px 0 0;font-size:.95rem}
+.stats{display:flex;gap:14px;margin-top:12px;font-size:.88rem;color:var(--muted);flex-wrap:wrap}
+.stats b{color:var(--ink);font-weight:600}
+.carb{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:64px;height:64px;border-radius:50%;background:var(--butter);color:#2A2410;font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1}
+.carb strong{font-size:1.35rem;font-weight:800}
+.carb span{font-size:.62rem;font-weight:600;margin-top:3px}
+.fresh{display:inline-block;font-size:.75rem;font-weight:600;color:var(--salmon);margin-bottom:4px}
+.detail{padding:0 18px 18px;border-top:1.5px dashed var(--line)}
+.detail h3{font-size:1rem;margin:16px 0 8px}
+.detail ul,.detail ol{margin:0;padding-left:1.25em}
+.detail li{margin:4px 0}
+.detail ol li::marker{font-weight:700;color:var(--avocado)}
+.card-actions{display:flex;gap:8px;margin-top:16px}
+.fav{border:1.5px solid var(--line);background:none;border-radius:10px;padding:8px 12px;font-size:.9rem;font-weight:500}
+.fav[aria-pressed="true"]{background:var(--salmon);border-color:var(--salmon);color:#fff}
+
+.empty{background:var(--surface);border:1.5px dashed var(--line);border-radius:20px;padding:28px 20px;text-align:center;color:var(--muted)}
+.status{font-size:.9rem;color:var(--muted);min-height:1.4em;margin:-6px 0 12px}
+.status.err{color:var(--salmon)}
+[hidden]{display:none!important}
+.btn-install{margin-top:14px;background:var(--salmon);color:#fff;border:0;border-radius:12px;padding:10px 16px;font-weight:600}
+.ios-hint{margin:12px 0 0;font-size:.88rem;background:var(--avocado-soft);border-radius:10px;padding:8px 12px;display:inline-block}
+.wk{border:1.5px solid var(--avocado);background:none;color:var(--avocado);border-radius:10px;padding:8px 12px;font-size:.9rem;font-weight:600}
+.wk[aria-pressed="true"]{background:var(--avocado);color:var(--on-avocado)}
+.inweek{color:var(--avocado);font-weight:600}
+.shop{margin-top:28px;background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:20px 18px}
+.shop-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.shop-head h2{font-size:1.6rem;font-weight:800;letter-spacing:-0.02em}
+.shop-head span{color:var(--muted);font-size:.9rem}
+.shop-note{color:var(--muted);font-size:.9rem;margin:6px 0 4px}
+.shop h3{font-size:1rem;margin:20px 0 6px;color:var(--avocado)}
+.shop-list{list-style:none;margin:0;padding:0}
+.shop-list li{border-bottom:1px solid var(--line)}
+.shop-list label{display:flex;gap:12px;align-items:flex-start;padding:10px 2px;cursor:pointer}
+.shop-list input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--avocado);flex:none}
+.shop-list .qty{font-weight:600;min-width:4.5em;display:inline-block}
+.shop-list .for{display:block;font-size:.78rem;color:var(--muted)}
+.shop-list input:checked+span{text-decoration:line-through;opacity:.5}
+.shop-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.shop-actions button{border:1.5px solid var(--line);background:none;border-radius:10px;padding:9px 14px;font-weight:600;font-size:.9rem}
+.shop-actions .primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.shop textarea{width:100%;min-height:160px;margin-top:12px;font:inherit;font-size:.85rem;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:10px}
+footer{margin-top:40px;font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>J &amp; K’s Keto Meals<span class="dot" aria-hidden="true"></span></h1>
+    <button class="btn-install" id="install" hidden>Install app</button>
+    <p class="ios-hint" id="ioshint" hidden>To install on iPhone: tap Share, then “Add to Home Screen”.</p>
+    <p class="lede">Low-carb meals, dealt fresh every time you open it. Tap a filter to cut what you don’t eat.</p>
+  </header>
+
+  <div class="filters" id="filters" role="group" aria-label="Leave out"></div>
+  <p class="filter-note">Highlighted filters are left out of every recipe.</p>
+
+  <div class="meals" role="tablist" id="meals"></div>
+
+  <div class="deal-bar">
+    <button class="btn-deal" id="deal">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
+      Deal new recipes
+    </button>
+    <span class="count" id="count"></span>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+
+  <div class="hand" id="hand"></div>
+  <section class="shop" id="shop" hidden aria-label="Shopping list"></section>
+
+  <footer>Your filters, saved recipes and weekly list stay on this device. Net carbs are rough per-serving estimates. Check labels on anything packaged.</footer>
+</div>
+
+<script>
+const FILTERS = [
+  {k:"poultry",label:"Poultry"},{k:"dairy",label:"Dairy"},{k:"eggs",label:"Eggs"},
+  {k:"pork",label:"Pork"},{k:"beef",label:"Beef"},{k:"lamb",label:"Lamb"},
+  {k:"fish",label:"Fish"},{k:"shellfish",label:"Shellfish"},{k:"nuts",label:"Nuts"}
+];
+const MEALS = [{k:"all",label:"Everything"},{k:"new",label:"New this week"},{k:"main",label:"Mains"},{k:"breakfast",label:"Breakfast"},{k:"snack",label:"Snacks"},{k:"dessert",label:"Sweet"},{k:"saved",label:"Saved"},{k:"week",label:"This week"}];
+
+const R = [
+ {id:"larb",meal:"main",name:"Thai beef larb lettuce cups",blurb:"Zingy minced beef with lime, mint and toasted chilli, scooped into crisp lettuce.",mins:20,serves:2,carbs:5,contains:["beef"],
+  ing:["400g beef mince","1 small red onion, finely sliced","2 limes, juiced","1½ tbsp fish sauce","1 tsp chilli flakes","Big handful mint and coriander","1 little gem lettuce, leaves separated","1 tbsp avocado oil"],
+  steps:["Fry the mince in oil over high heat until browned and crumbly.","Take off the heat; stir in lime juice, fish sauce, chilli and onion.","Fold through the herbs and spoon into lettuce cups."]},
+ {id:"salmoncurry",meal:"main",name:"Coconut-lime salmon curry",blurb:"Silky coconut broth with flaky salmon and spinach. Serve over cauliflower rice.",mins:25,serves:2,carbs:7,contains:["fish"],
+  ing:["2 salmon fillets, cubed","400ml full-fat coconut milk","2 tbsp red curry paste","1 lime, zested and juiced","2 handfuls spinach","1 tbsp coconut oil","Cauliflower rice to serve"],
+  steps:["Fry the curry paste in coconut oil for 1 minute.","Pour in coconut milk and simmer 5 minutes.","Add salmon and poach gently for 6–8 minutes.","Stir through spinach, lime zest and juice."]},
+ {id:"steakbites",meal:"main",name:"Garlic butter steak bites",blurb:"Seared sirloin cubes tossed in garlicky herb butter.",mins:15,serves:2,carbs:2,contains:["beef","dairy"],
+  ing:["500g sirloin, cubed","3 tbsp butter","4 garlic cloves, minced","Fresh thyme","Salt and pepper"],
+  steps:["Sear steak in a very hot pan in batches, 2 minutes per side.","Lower heat, add butter, garlic and thyme.","Toss the steak in the butter and serve straight away."]},
+ {id:"olivechicken",meal:"main",name:"Crispy chicken thighs with olive salsa",blurb:"Skin-on thighs roasted crisp, topped with a briny olive and parsley salsa.",mins:40,serves:2,carbs:2,contains:["poultry"],
+  ing:["4 skin-on chicken thighs","Handful green olives, chopped","1 tbsp capers","Small bunch parsley, chopped","1 lemon","3 tbsp olive oil"],
+  steps:["Season thighs and roast skin-side up at 210°C for 35 minutes.","Mix olives, capers, parsley, lemon juice and olive oil.","Spoon salsa over the crispy thighs."]},
+ {id:"porkrice",meal:"main",name:"Pork belly cauliflower fried rice",blurb:"Crispy pork belly bits, egg and spring onion through wok-fried cauli rice.",mins:30,serves:2,carbs:6,contains:["pork","eggs"],
+  ing:["250g pork belly, diced","400g riced cauliflower","2 eggs, beaten","3 spring onions, sliced","2 tbsp coconut aminos","1 tsp sesame oil"],
+  steps:["Fry pork belly until crisp and fat has rendered.","Add cauliflower rice; stir-fry 5 minutes.","Push aside, scramble the eggs, then mix together.","Season with coconut aminos, sesame oil and spring onion."]},
+ {id:"kofta",meal:"main",name:"Lamb kofta with tahini drizzle",blurb:"Cumin-spiced lamb skewers with a lemony tahini sauce and cucumber.",mins:25,serves:2,carbs:4,contains:["lamb"],
+  ing:["400g lamb mince","1 tsp cumin","1 tsp coriander","2 garlic cloves, grated","3 tbsp tahini","1 lemon","1 cucumber, sliced"],
+  steps:["Mix lamb, spices, garlic and salt; shape around skewers.","Grill or pan-fry 8–10 minutes, turning.","Whisk tahini with lemon juice and water until pourable.","Serve kofta with cucumber and the drizzle."]},
+ {id:"pestoshrimp",meal:"main",name:"Prawn courgetti with dairy-free pesto",blurb:"Garlicky prawns over courgette noodles with a basil and pine nut pesto.",mins:20,serves:2,carbs:6,contains:["shellfish","nuts"],
+  ing:["250g raw king prawns","2 courgettes, spiralised","Large bunch basil","30g pine nuts","1 garlic clove","5 tbsp olive oil","1 tbsp nutritional yeast"],
+  steps:["Blitz basil, pine nuts, garlic, yeast and olive oil into pesto.","Sauté prawns 2–3 minutes until pink.","Add courgetti for 1 minute, then toss with pesto."]},
+ {id:"mackerel",meal:"main",name:"Smoked mackerel and avocado bowl",blurb:"No-cook bowl with peppery mackerel, avocado, radish and a mustard dressing.",mins:10,serves:1,carbs:4,contains:["fish"],
+  ing:["1 smoked mackerel fillet, flaked","1 avocado, sliced","4 radishes, sliced","Handful rocket","1 tsp Dijon mustard","1 tbsp olive oil","Squeeze of lemon"],
+  steps:["Whisk mustard, oil and lemon.","Pile rocket, mackerel, avocado and radish into a bowl.","Drizzle with dressing."]},
+ {id:"chorizoeggs",meal:"breakfast",name:"Chorizo baked eggs",blurb:"Eggs baked in a smoky chorizo and pepper base — one pan, done.",mins:20,serves:2,carbs:5,contains:["pork","eggs"],
+  ing:["100g cooking chorizo, diced","1 red pepper, sliced","4 eggs","Handful spinach","Smoked paprika"],
+  steps:["Fry chorizo until its oil runs; add pepper for 5 minutes.","Wilt in spinach, make 4 wells and crack in the eggs.","Cover and cook on low until whites set, 5–6 minutes."]},
+ {id:"beefbroc",meal:"main",name:"Beef and broccoli stir-fry",blurb:"Takeaway-style, sweetened with coconut aminos instead of sugar.",mins:20,serves:2,carbs:7,contains:["beef"],
+  ing:["350g flank steak, thinly sliced","1 head broccoli, florets","3 tbsp coconut aminos","1 tbsp grated ginger","2 garlic cloves","1 tbsp avocado oil","Sesame seeds"],
+  steps:["Sear beef in a very hot wok; remove.","Stir-fry broccoli with a splash of water for 3 minutes.","Add ginger, garlic and aminos, return the beef and toss.","Finish with sesame seeds."]},
+ {id:"codromesco",meal:"main",name:"Roast cod with romesco",blurb:"Flaky cod on a smoky roasted pepper and almond sauce.",mins:25,serves:2,carbs:6,contains:["fish","nuts"],
+  ing:["2 cod fillets","1 jar roasted red peppers (150g drained)","40g toasted almonds","1 garlic clove","1 tsp smoked paprika","1 tbsp sherry vinegar","4 tbsp olive oil"],
+  steps:["Roast seasoned cod at 200°C for 12–15 minutes.","Blitz peppers, almonds, garlic, paprika, vinegar and oil.","Spread romesco on plates and sit the cod on top."]},
+ {id:"tuscanchicken",meal:"main",name:"Creamy Tuscan chicken",blurb:"Golden chicken in a parmesan cream with sun-dried tomatoes and spinach.",mins:30,serves:2,carbs:6,contains:["poultry","dairy"],
+  ing:["2 chicken breasts, butterflied","150ml double cream","40g parmesan, grated","4 sun-dried tomatoes, chopped","2 handfuls spinach","2 garlic cloves"],
+  steps:["Pan-fry chicken until cooked through; set aside.","Soften garlic and tomatoes, then add cream and parmesan.","Wilt in spinach and return the chicken to the sauce."]},
+ {id:"porkchops",meal:"main",name:"Pork chops with mustard cabbage",blurb:"Juicy chops over sautéed cabbage with wholegrain mustard and apple cider vinegar.",mins:25,serves:2,carbs:6,contains:["pork"],
+  ing:["2 thick pork chops","½ savoy cabbage, shredded","1 tbsp wholegrain mustard","1 tbsp apple cider vinegar","1 tbsp olive oil","Caraway seeds (optional)"],
+  steps:["Sear chops 4–5 minutes per side; rest.","In the same pan, sauté cabbage until wilted and browned at the edges.","Stir in mustard, vinegar and caraway. Serve with the chops."]},
+ {id:"tunaavo",meal:"snack",name:"Tuna-stuffed avocados",blurb:"Lemony tuna mayo piled into avocado halves. Lunchbox gold.",mins:10,serves:2,carbs:3,contains:["fish","eggs"],
+  ing:["1 tin tuna, drained","2 tbsp mayonnaise","1 celery stick, finely diced","1 tsp lemon juice","2 avocados, halved"],
+  steps:["Mix tuna, mayo, celery and lemon; season well.","Spoon into avocado halves."]},
+ {id:"chia",meal:"breakfast",name:"Coconut vanilla chia pudding",blurb:"Make it the night before; top with a few berries in the morning.",mins:5,serves:2,carbs:4,contains:[],
+  ing:["250ml full-fat coconut milk","4 tbsp chia seeds","½ tsp vanilla","Sweetener to taste","A few raspberries"],
+  steps:["Whisk coconut milk, chia, vanilla and sweetener.","Chill at least 4 hours or overnight.","Top with raspberries."]},
+ {id:"shortribs",meal:"main",name:"Braised short ribs on cauliflower mash",blurb:"Slow-cooked, falling-apart beef over olive oil cauliflower mash.",mins:180,serves:4,carbs:8,contains:["beef"],
+  ing:["1.2kg beef short ribs","1 onion, chopped","2 garlic cloves","500ml beef stock","2 tbsp tomato purée","1 large cauliflower","3 tbsp olive oil"],
+  steps:["Brown ribs all over; remove.","Soften onion and garlic, stir in purée and stock.","Return ribs, cover and braise at 160°C for 2½–3 hours.","Steam cauliflower and blitz with olive oil and salt. Serve together."]},
+ {id:"halloumi",meal:"main",name:"Halloumi and mushroom skewers",blurb:"Squeaky grilled halloumi with herby mushrooms and a lemon oregano oil.",mins:20,serves:2,carbs:4,contains:["dairy"],
+  ing:["225g halloumi, cubed","200g chestnut mushrooms","1 courgette, chunked","3 tbsp olive oil","1 tsp dried oregano","1 lemon"],
+  steps:["Thread halloumi and veg onto skewers.","Brush with oil, oregano and lemon zest.","Grill 8–10 minutes, turning, and squeeze over lemon."]},
+ {id:"eggmuffins",meal:"breakfast",name:"Bacon and spinach egg muffins",blurb:"Batch-bake on Sunday, grab one each morning.",mins:25,serves:6,carbs:1,contains:["eggs","pork"],
+  ing:["8 eggs","6 rashers bacon, chopped and fried","2 handfuls spinach, chopped","4 spring onions, sliced","Salt and pepper"],
+  steps:["Heat oven to 180°C and grease a 12-hole muffin tin.","Divide bacon, spinach and onion between holes.","Pour over beaten, seasoned eggs; bake 18–20 minutes."]},
+ {id:"mussels",meal:"main",name:"Mussels in coconut lemongrass broth",blurb:"Fragrant, quick and impressive — drink the broth with a spoon.",mins:20,serves:2,carbs:7,contains:["shellfish"],
+  ing:["1kg mussels, cleaned","400ml coconut milk","2 lemongrass stalks, bashed","1 red chilli, sliced","2 garlic cloves","1 lime","Coriander"],
+  steps:["Soften garlic, chilli and lemongrass in a large pan.","Add coconut milk and bring to a simmer.","Tip in mussels, cover and steam 4–5 minutes until open. Discard any that stay shut.","Finish with lime and coriander."]},
+ {id:"lambchops",meal:"main",name:"Lamb chops with mint chimichurri",blurb:"Charred chops and a bright, punchy herb sauce.",mins:20,serves:2,carbs:2,contains:["lamb"],
+  ing:["6 lamb chops","Small bunch mint","Small bunch parsley","1 garlic clove","2 tbsp red wine vinegar","5 tbsp olive oil","Pinch chilli flakes"],
+  steps:["Finely chop herbs and garlic; mix with vinegar, oil and chilli.","Season chops and griddle 3 minutes per side.","Rest 3 minutes, then spoon over chimichurri."]},
+ {id:"burgerbowl",meal:"main",name:"Bun-less burger bowls",blurb:"Smashed patties, pickles, lettuce and a tangy burger sauce.",mins:20,serves:2,carbs:5,contains:["beef","eggs"],
+  ing:["400g beef mince","1 romaine lettuce, chopped","Gherkins, sliced","Cherry tomatoes, halved","3 tbsp mayonnaise","1 tsp mustard","1 tsp gherkin brine"],
+  steps:["Smash balls of mince onto a hot pan; cook 2 minutes per side.","Mix mayo, mustard and brine for the sauce.","Build bowls with lettuce, tomatoes, gherkins and patties; drizzle sauce."]},
+ {id:"turkeytacos",meal:"main",name:"Turkey taco lettuce wraps",blurb:"Smoky spiced turkey with salsa and avocado in lettuce shells.",mins:20,serves:2,carbs:5,contains:["poultry"],
+  ing:["400g turkey mince","2 tsp chilli powder","1 tsp cumin","1 tsp smoked paprika","1 avocado","Fresh tomato salsa","Iceberg lettuce cups"],
+  steps:["Brown turkey with the spices and a splash of water.","Spoon into lettuce cups.","Top with avocado and salsa."]},
+ {id:"sardines",meal:"snack",name:"Sardine tapenade cucumber bites",blurb:"Omega-3 packed snack — salty, crunchy and fast.",mins:10,serves:2,carbs:2,contains:["fish"],
+  ing:["1 tin sardines in olive oil","8 black olives","1 tsp capers","½ lemon","1 cucumber, thickly sliced"],
+  steps:["Mash sardines with chopped olives, capers and lemon.","Pile onto cucumber rounds."]},
+ {id:"mousse",meal:"dessert",name:"Chocolate avocado mousse",blurb:"Rich, silky and nobody guesses the avocado.",mins:10,serves:2,carbs:5,contains:[],
+  ing:["2 ripe avocados","3 tbsp cocoa powder","4 tbsp coconut milk","Sweetener to taste","½ tsp vanilla","Pinch of salt"],
+  steps:["Blend everything until completely smooth.","Chill 30 minutes before serving."]},
+ {id:"sesametuna",meal:"main",name:"Sesame-crusted tuna with crunchy slaw",blurb:"Seared tuna, rare in the middle, over a ginger-lime cabbage slaw.",mins:15,serves:2,carbs:5,contains:["fish"],
+  ing:["2 tuna steaks","4 tbsp sesame seeds","¼ red cabbage, shredded","1 carrot, julienned (small)","1 tsp grated ginger","1 lime","1 tbsp sesame oil"],
+  steps:["Press tuna into sesame seeds.","Sear 60–90 seconds per side in a hot pan.","Toss cabbage and carrot with ginger, lime and sesame oil. Slice tuna over the top."]},
+ {id:"carnitas",meal:"main",name:"Pork carnitas lettuce tacos",blurb:"Slow-cooked citrus pork crisped under the grill, with guacamole.",mins:200,serves:4,carbs:4,contains:["pork"],
+  ing:["1kg pork shoulder, chunked","1 orange, zested (no juice)","2 limes, juiced","2 tsp cumin","1 tsp oregano","3 garlic cloves","Guacamole and lettuce to serve"],
+  steps:["Rub pork with spices, garlic, zest and lime.","Cover and cook at 150°C for 3 hours until tender.","Shred, spread on a tray and grill until crispy edges form.","Serve in lettuce with guacamole."]},
+ {id:"smokedsalmonboard",meal:"breakfast",name:"Smoked salmon breakfast plate",blurb:"Smoked salmon, avocado, capers and dill with a squeeze of lemon.",mins:5,serves:1,carbs:3,contains:["fish"],
+  ing:["100g smoked salmon","½ avocado","1 tsp capers","Fresh dill","Lemon wedge","Cracked black pepper"],
+  steps:["Arrange salmon and sliced avocado on a plate.","Scatter capers and dill, add pepper and lemon."]},
+ {id:"almondfatbombs",meal:"dessert",name:"Almond butter cocoa bites",blurb:"Freezer fat bombs for when a sweet craving hits.",mins:10,serves:12,carbs:1,contains:["nuts"],
+  ing:["120g almond butter","60g coconut oil, melted","2 tbsp cocoa powder","Sweetener to taste","Flaky salt"],
+  steps:["Stir everything together until smooth.","Pour into a silicone mould or lined tin.","Freeze 1 hour; sprinkle with flaky salt."]},
+ {id:"olivetapenade",meal:"snack",name:"Spiced roasted almonds",blurb:"Smoky paprika almonds — good for a desk drawer.",mins:15,serves:6,carbs:2,contains:["nuts"],
+  ing:["200g whole almonds","1 tbsp olive oil","1 tsp smoked paprika","½ tsp garlic powder","Sea salt"],
+  steps:["Toss almonds with oil and spices.","Roast at 170°C for 10–12 minutes, shaking once.","Cool completely to crisp up."]},
+ {id:"seedcrackers",meal:"snack",name:"Seeded crackers with guacamole",blurb:"Crunchy flax and sunflower crackers with a quick guac.",mins:45,serves:4,carbs:2,contains:[],
+  ing:["60g ground flaxseed","40g sunflower seeds","30g pumpkin seeds","2 tbsp chia seeds","120ml water","Salt","2 avocados, lime, chilli for guac"],
+  steps:["Mix seeds, salt and water; rest 10 minutes.","Spread thinly on lined tray; bake at 160°C for 30–35 minutes, then snap into pieces.","Mash avocado with lime, chilli and salt to serve."]},
+ {"id": "steakeggs", "meal": "breakfast", "name": "Steak and eggs with chimichurri", "blurb": "A proper weekend plate: seared steak, fried eggs and a sharp herb sauce.", "mins": 20, "serves": 2, "carbs": 2, "contains": ["beef", "eggs"], "ing": ["2 thin-cut sirloin steaks", "4 eggs", "Small bunch parsley", "1 garlic clove", "1 tbsp red wine vinegar", "4 tbsp olive oil", "Pinch chilli flakes"], "steps": ["Chop parsley and garlic; mix with vinegar, oil and chilli.", "Sear steaks 2 minutes per side, then rest.", "Fry the eggs in the steak pan.", "Plate up and spoon over the chimichurri."]},
+ {"id": "noatmeal", "meal": "breakfast", "name": "Warm coconut and almond ‘noatmeal’", "blurb": "A cosy, porridge-like bowl with no oats in sight.", "mins": 10, "serves": 1, "carbs": 4, "contains": ["nuts"], "ing": ["3 tbsp desiccated coconut", "2 tbsp ground almonds", "1 tbsp ground flaxseed", "150ml coconut milk", "½ tsp cinnamon", "Sweetener to taste", "A few blueberries"], "steps": ["Stir everything except the berries in a small pan.", "Simmer 3–4 minutes until thick, adding water if needed.", "Top with blueberries."]},
+ {"id": "salmonhash", "meal": "breakfast", "name": "Smoked salmon and courgette hash", "blurb": "Crispy grated courgette and spring onion topped with ribbons of smoked salmon.", "mins": 15, "serves": 2, "carbs": 4, "contains": ["fish"], "ing": ["2 courgettes, grated and squeezed dry", "3 spring onions, sliced", "120g smoked salmon", "1 tbsp olive oil", "Fresh dill", "Lemon wedges"], "steps": ["Fry courgette and spring onion in oil over high heat until golden at the edges.", "Season well and divide between plates.", "Top with salmon, dill and a squeeze of lemon."]},
+ {"id": "sausageskillet", "meal": "breakfast", "name": "Sausage and mushroom skillet", "blurb": "Big fry-up flavour in one pan. Pick sausages that are 90%+ meat and gluten-free.", "mins": 25, "serves": 2, "carbs": 4, "contains": ["pork"], "ing": ["4 high-meat pork sausages", "200g chestnut mushrooms, quartered", "8 cherry tomatoes", "2 handfuls spinach", "1 tbsp olive oil"], "steps": ["Brown sausages in oil for 12–15 minutes until cooked through.", "Add mushrooms and tomatoes for 5 minutes.", "Wilt in the spinach and season."]},
+ {"id": "avoeggs", "meal": "breakfast", "name": "Baked avocado eggs", "blurb": "An egg baked inside each avocado half, finished with chilli and chives.", "mins": 20, "serves": 2, "carbs": 3, "contains": ["eggs"], "ing": ["2 avocados, halved and stoned", "4 small eggs", "Chilli flakes", "Chives, snipped", "Salt and pepper"], "steps": ["Scoop a little flesh from each avocado to widen the hole.", "Sit in a dish, crack an egg into each half.", "Bake at 200°C for 12–15 minutes until whites set.", "Season and scatter with chilli and chives."]},
+ {"id": "coconutyogbowl", "meal": "breakfast", "name": "Coconut yoghurt crunch bowl", "blurb": "Tangy coconut yoghurt with toasted nuts, seeds and raspberries.", "mins": 5, "serves": 1, "carbs": 6, "contains": ["nuts"], "ing": ["150g unsweetened coconut yoghurt", "1 tbsp toasted flaked almonds", "1 tbsp pumpkin seeds", "1 tbsp coconut flakes", "Handful raspberries"], "steps": ["Spoon yoghurt into a bowl.", "Scatter with nuts, seeds, coconut and raspberries."]},
+ {"id": "kippers", "meal": "breakfast", "name": "Kippers with garlicky spinach", "blurb": "Old-school smoked kippers with lemony greens. Rich in omega-3.", "mins": 12, "serves": 2, "carbs": 2, "contains": ["fish"], "ing": ["2 kipper fillets", "200g spinach", "1 garlic clove, sliced", "1 tbsp olive oil", "½ lemon"], "steps": ["Grill kippers 4–5 minutes.", "Meanwhile wilt spinach with garlic in oil.", "Serve with lemon squeezed over."]},
+ {"id": "greensmoothie", "meal": "breakfast", "name": "Creamy green breakfast smoothie", "blurb": "Avocado, spinach and coconut for a filling drink on the go.", "mins": 5, "serves": 1, "carbs": 4, "contains": [], "ing": ["½ avocado", "Handful spinach", "200ml coconut milk (carton)", "1 tbsp chia seeds", "½ lime, juiced", "Ice"], "steps": ["Blend everything until smooth.", "Add water to loosen if needed."]},
+ {"id": "lambaubergine", "meal": "main", "name": "Lamb and aubergine bake with tahini", "blurb": "Moussaka-ish layers of spiced lamb and aubergine with a tahini topping.", "mins": 60, "serves": 4, "carbs": 8, "contains": ["lamb"], "ing": ["500g lamb mince", "2 aubergines, sliced", "1 onion, chopped", "2 garlic cloves", "1 tin chopped tomatoes (400g)", "1 tsp cinnamon", "4 tbsp tahini", "1 lemon", "3 tbsp olive oil"], "steps": ["Brush aubergine with oil and roast at 200°C for 20 minutes.", "Brown lamb with onion and garlic, add tomatoes and cinnamon; simmer 15 minutes.", "Layer lamb and aubergine in a dish.", "Whisk tahini with lemon and water, pour over and bake 20 minutes."]},
+ {"id": "beanlesschilli", "meal": "main", "name": "No-bean beef chilli", "blurb": "Smoky, deep chilli loaded with peppers instead of beans. Freezes well.", "mins": 60, "serves": 4, "carbs": 8, "contains": ["beef"], "ing": ["600g beef mince", "1 onion, chopped", "2 peppers, diced", "3 garlic cloves", "1 tin chopped tomatoes (400g)", "2 tsp chilli powder", "2 tsp cumin", "1 tsp smoked paprika", "1 avocado to serve"], "steps": ["Brown mince; add onion, peppers and garlic for 5 minutes.", "Stir in spices, then tomatoes and a splash of water.", "Simmer 40 minutes, lid half on.", "Serve topped with sliced avocado."]},
+ {"id": "greenprawn", "meal": "main", "name": "Thai green prawn curry", "blurb": "Fragrant green curry with prawns, green beans and Thai basil.", "mins": 20, "serves": 2, "carbs": 7, "contains": ["shellfish"], "ing": ["250g raw king prawns", "400ml coconut milk", "2 tbsp green curry paste", "150g green beans, halved", "1 tbsp fish sauce", "1 lime", "Thai basil", "1 tbsp coconut oil"], "steps": ["Fry paste in coconut oil for 1 minute.", "Add coconut milk and beans; simmer 5 minutes.", "Add prawns for 3 minutes until pink.", "Season with fish sauce and lime; scatter basil."]},
+ {"id": "koreanpork", "meal": "main", "name": "Korean-style pork lettuce wraps", "blurb": "Sticky, spicy pork mince with sesame and cucumber pickles in lettuce leaves.", "mins": 20, "serves": 2, "carbs": 5, "contains": ["pork"], "ing": ["400g pork mince", "2 tbsp coconut aminos", "1 tbsp grated ginger", "2 garlic cloves", "1 tsp Korean chilli flakes", "1 tsp sesame oil", "1 cucumber, thinly sliced", "1 tbsp rice vinegar", "Little gem leaves"], "steps": ["Toss cucumber with rice vinegar and a pinch of salt.", "Fry pork until browned; add ginger, garlic and chilli.", "Stir in aminos and sesame oil.", "Spoon into lettuce with the pickles."]},
+ {"id": "salmonbokchoy", "meal": "main", "name": "Glazed salmon with garlic bok choy", "blurb": "Coconut-aminos glazed salmon with quick-fried greens.", "mins": 20, "serves": 2, "carbs": 5, "contains": ["fish"], "ing": ["2 salmon fillets", "3 tbsp coconut aminos", "1 tsp grated ginger", "2 heads bok choy, halved", "2 garlic cloves, sliced", "1 tbsp avocado oil", "Sesame seeds"], "steps": ["Roast salmon at 200°C for 10 minutes; brush with aminos and ginger and roast 3 more.", "Fry bok choy and garlic in oil for 3 minutes.", "Serve with sesame seeds."]},
+ {"id": "stuffedpeppers", "meal": "main", "name": "Beef and cauliflower rice stuffed peppers", "blurb": "Colourful peppers packed with spiced beef and cauli rice.", "mins": 45, "serves": 4, "carbs": 8, "contains": ["beef"], "ing": ["4 peppers, tops off and deseeded", "400g beef mince", "250g riced cauliflower", "1 onion, chopped", "2 tbsp tomato purée", "1 tsp cumin", "1 tsp oregano"], "steps": ["Brown mince with onion; stir in cauli rice, purée and spices.", "Pack into peppers and stand in a dish.", "Cover with foil and bake at 190°C for 30 minutes."]},
+ {"id": "roganjosh", "meal": "main", "name": "Lamb rogan josh", "blurb": "Slow-simmered lamb in a warming, aromatic curry sauce.", "mins": 90, "serves": 4, "carbs": 7, "contains": ["lamb"], "ing": ["700g diced lamb shoulder", "1 onion, chopped", "4 garlic cloves", "1 tbsp grated ginger", "3 tbsp rogan josh paste", "1 tin chopped tomatoes (400g)", "2 tbsp avocado oil", "Coriander", "Cauliflower rice to serve"], "steps": ["Brown lamb in oil; set aside.", "Soften onion, garlic and ginger; fry the paste 1 minute.", "Return lamb with tomatoes and 200ml water; simmer covered 1 hour.", "Serve with cauliflower rice and coriander."]},
+ {"id": "codputtanesca", "meal": "main", "name": "Cod puttanesca", "blurb": "Flaky cod in a punchy tomato sauce with olives, capers and anchovy.", "mins": 25, "serves": 2, "carbs": 6, "contains": ["fish"], "ing": ["2 cod fillets", "1 tin chopped tomatoes (400g)", "4 anchovy fillets", "Handful black olives", "1 tbsp capers", "2 garlic cloves", "Pinch chilli flakes", "2 tbsp olive oil", "Parsley"], "steps": ["Melt anchovies and garlic into the oil.", "Add tomatoes, olives, capers and chilli; simmer 10 minutes.", "Nestle in cod, cover and cook 8 minutes.", "Finish with parsley."]},
+ {"id": "porkmeatballs", "meal": "main", "name": "Pork meatballs in tomato sauce", "blurb": "Herby meatballs simmered in rich tomato sauce, served over courgetti.", "mins": 35, "serves": 4, "carbs": 7, "contains": ["pork"], "ing": ["500g pork mince", "2 garlic cloves, grated", "1 tsp fennel seeds", "1 tsp dried oregano", "1 tin chopped tomatoes (400g)", "1 tbsp olive oil", "3 courgettes, spiralised", "Basil"], "steps": ["Mix pork, garlic, fennel and oregano; roll into balls.", "Brown meatballs in oil.", "Add tomatoes and simmer 15 minutes.", "Serve over courgetti with basil."]},
+ {"id": "beefpho", "meal": "main", "name": "Beef pho with courgette noodles", "blurb": "Spiced, clear broth poured over raw beef and courgette noodles.", "mins": 30, "serves": 2, "carbs": 6, "contains": ["beef"], "ing": ["1l beef stock", "2 star anise", "1 cinnamon stick", "2cm ginger, sliced", "1 tbsp fish sauce", "200g sirloin, sliced paper-thin", "2 courgettes, spiralised", "Beansprouts, Thai basil, lime, chilli"], "steps": ["Simmer stock with star anise, cinnamon and ginger for 20 minutes; strain.", "Season with fish sauce.", "Divide courgetti and raw beef between bowls.", "Pour boiling broth over and add the toppings."]},
+ {"id": "chillisquid", "meal": "main", "name": "Garlic and chilli squid", "blurb": "Quick-seared squid with garlic, chilli and parsley over rocket.", "mins": 15, "serves": 2, "carbs": 3, "contains": ["shellfish"], "ing": ["400g squid, cleaned and scored", "3 garlic cloves, sliced", "1 red chilli, sliced", "3 tbsp olive oil", "1 lemon", "Parsley", "Rocket"], "steps": ["Get a pan smoking hot with the oil.", "Sear squid 1–2 minutes, adding garlic and chilli for the last 30 seconds.", "Toss with lemon and parsley; serve on rocket."]},
+ {"id": "seabass", "meal": "main", "name": "Crispy sea bass with lemon caper oil", "blurb": "Crackly-skinned fillets with a warm, briny dressing and greens.", "mins": 15, "serves": 2, "carbs": 2, "contains": ["fish"], "ing": ["2 sea bass fillets", "4 tbsp olive oil", "1 tbsp capers", "1 lemon", "200g tenderstem broccoli", "Parsley"], "steps": ["Steam broccoli 4 minutes.", "Fry sea bass skin-side down 3–4 minutes until crisp; flip for 1 minute.", "Warm capers in remaining oil with lemon juice and parsley.", "Spoon over fish and greens."]},
+ {"id": "pulledpork", "meal": "main", "name": "Smoky pulled pork with crunchy slaw", "blurb": "Low and slow sugar-free pulled pork with a tangy mayo-free slaw.", "mins": 240, "serves": 6, "carbs": 4, "contains": ["pork"], "ing": ["1.5kg pork shoulder", "2 tbsp smoked paprika", "1 tsp garlic powder", "1 tsp cumin", "2 tbsp apple cider vinegar", "¼ white cabbage, shredded", "1 carrot, grated (small)", "3 tbsp olive oil"], "steps": ["Rub pork with spices and salt.", "Cover and roast at 150°C for 4 hours until it pulls apart.", "Toss cabbage and carrot with vinegar, oil and salt.", "Shred pork and serve with the slaw."]},
+ {"id": "stroganoff", "meal": "main", "name": "Dairy-free beef stroganoff", "blurb": "Mushroom-rich stroganoff made creamy with coconut cream and mustard.", "mins": 25, "serves": 2, "carbs": 6, "contains": ["beef"], "ing": ["350g sirloin, sliced into strips", "250g mushrooms, sliced", "1 small onion, sliced", "150ml coconut cream", "1 tsp Dijon mustard", "1 tsp smoked paprika", "1 tbsp avocado oil", "Cauliflower mash to serve"], "steps": ["Sear beef quickly in oil; set aside.", "Soften onion and mushrooms.", "Add paprika, mustard and coconut cream; simmer 3 minutes.", "Return beef and serve over cauliflower mash."]},
+ {"id": "satay", "meal": "main", "name": "Chicken satay skewers", "blurb": "Grilled chicken with an almond butter satay dip.", "mins": 30, "serves": 2, "carbs": 5, "contains": ["poultry", "nuts"], "ing": ["3 chicken thighs, cubed", "1 tsp turmeric", "2 tbsp coconut aminos", "3 tbsp almond butter", "100ml coconut milk", "1 lime", "Pinch chilli flakes", "Cucumber to serve"], "steps": ["Marinate chicken with turmeric and 1 tbsp aminos for 10 minutes.", "Thread onto skewers and grill 10–12 minutes.", "Warm almond butter, coconut milk, lime, chilli and remaining aminos.", "Serve skewers with sauce and cucumber."]},
+ {"id": "chickenchorizo", "meal": "main", "name": "Chicken and chorizo traybake", "blurb": "Smoky chorizo oils roast into the chicken and peppers.", "mins": 45, "serves": 4, "carbs": 6, "contains": ["poultry", "pork"], "ing": ["6 chicken thighs", "150g cooking chorizo, sliced", "2 peppers, chunked", "1 red onion, wedged", "1 tsp smoked paprika", "2 tbsp olive oil"], "steps": ["Toss everything in a roasting tin with oil and paprika.", "Roast at 200°C for 40 minutes, turning once."]},
+ {"id": "cauliflowercheese", "meal": "main", "name": "Cauliflower cheese bake", "blurb": "Comfort food: cauliflower in a mustardy cheddar sauce, bubbling and golden.", "mins": 35, "serves": 4, "carbs": 6, "contains": ["dairy"], "ing": ["1 large cauliflower, florets", "150ml double cream", "100g cream cheese", "120g mature cheddar, grated", "1 tsp English mustard"], "steps": ["Boil cauliflower 5 minutes; drain well.", "Melt cream, cream cheese, mustard and most of the cheddar.", "Pour over cauliflower, top with remaining cheese.", "Bake at 200°C for 20 minutes."]},
+ {"id": "greeklamb", "meal": "main", "name": "Greek lamb burgers with tzatziki", "blurb": "Oregano and garlic lamb patties with cool cucumber yoghurt.", "mins": 25, "serves": 2, "carbs": 4, "contains": ["lamb", "dairy"], "ing": ["400g lamb mince", "1 tsp dried oregano", "2 garlic cloves", "150g Greek yoghurt", "½ cucumber, grated", "Mint", "Lettuce and tomato to serve"], "steps": ["Mix lamb, oregano and 1 garlic clove; shape 4 patties.", "Grill or fry 4 minutes per side.", "Mix yoghurt, squeezed cucumber, mint and remaining garlic.", "Serve on lettuce with tomato and tzatziki."]},
+ {"id": "nicoise", "meal": "main", "name": "Tuna niçoise salad", "blurb": "The classic, minus the potatoes: tuna, egg, beans and olives.", "mins": 20, "serves": 2, "carbs": 5, "contains": ["fish", "eggs"], "ing": ["2 tins tuna, drained", "4 eggs", "150g green beans", "Handful black olives", "Cherry tomatoes, halved", "Little gem lettuce", "1 tsp Dijon mustard", "3 tbsp olive oil", "1 tbsp red wine vinegar"], "steps": ["Boil eggs 8 minutes; blanch beans for the last 3.", "Cool and halve the eggs.", "Whisk mustard, oil and vinegar.", "Arrange everything and drizzle over the dressing."]},
+ {"id": "duckcabbage", "meal": "main", "name": "Crispy duck with five-spice cabbage", "blurb": "Rendered duck breast over savoy cabbage with ginger and five-spice.", "mins": 30, "serves": 2, "carbs": 5, "contains": ["poultry"], "ing": ["2 duck breasts, skin scored", "½ savoy cabbage, shredded", "1 tsp Chinese five-spice", "1 tbsp grated ginger", "1 tbsp coconut aminos"], "steps": ["Place duck skin-side down in a cold pan; cook over medium 12 minutes.", "Flip for 4 minutes; rest.", "Stir-fry cabbage in the duck fat with five-spice, ginger and aminos.", "Slice duck over the cabbage."]},
+ {"id": "prawnwraps", "meal": "main", "name": "Prawn and avocado lettuce wraps", "blurb": "Juicy prawns, avocado and a sriracha mayo in crunchy lettuce.", "mins": 10, "serves": 2, "carbs": 4, "contains": ["shellfish", "eggs"], "ing": ["250g cooked king prawns", "1 avocado, sliced", "3 tbsp mayonnaise", "1 tsp sriracha", "1 lime", "Iceberg lettuce cups", "Coriander"], "steps": ["Mix mayo, sriracha and a squeeze of lime.", "Fill lettuce cups with prawns and avocado.", "Drizzle with the mayo and add coriander."]},
+ {"id": "beefkebab", "meal": "main", "name": "Beef kebab skewers", "blurb": "Charred rump steak, peppers and red onion with a garlic marinade.", "mins": 30, "serves": 2, "carbs": 6, "contains": ["beef"], "ing": ["400g rump steak, cubed", "1 pepper, chunked", "1 red onion, chunked", "3 tbsp olive oil", "2 garlic cloves, grated", "1 tsp oregano", "1 lemon"], "steps": ["Marinate beef with oil, garlic, oregano and lemon for 15 minutes.", "Thread with peppers and onion.", "Grill 8–10 minutes, turning."]},
+ {"id": "moqueca", "meal": "main", "name": "Brazilian-style coconut fish stew", "blurb": "White fish poached in coconut milk with peppers, lime and coriander.", "mins": 30, "serves": 4, "carbs": 7, "contains": ["fish"], "ing": ["600g firm white fish, chunked", "400ml coconut milk", "1 pepper, sliced", "1 onion, sliced", "2 tomatoes, chopped", "2 garlic cloves", "1 tsp paprika", "2 limes", "Coriander", "2 tbsp olive oil"], "steps": ["Marinate fish with lime juice, garlic and salt for 10 minutes.", "Soften onion and pepper in oil; add tomatoes and paprika.", "Pour in coconut milk and bring to a simmer.", "Add fish, cook 8 minutes; finish with coriander."]},
+ {"id": "porkgreenbeans", "meal": "main", "name": "Sichuan-style pork with green beans", "blurb": "Blistered green beans tossed with crispy pork mince and chilli.", "mins": 20, "serves": 2, "carbs": 6, "contains": ["pork"], "ing": ["300g pork mince", "250g green beans", "3 garlic cloves", "1 tbsp grated ginger", "1 tsp Sichuan peppercorns, crushed", "2 tbsp coconut aminos", "1 tsp chilli flakes", "1 tbsp avocado oil"], "steps": ["Blister beans in a hot pan with oil; set aside.", "Fry pork until crispy.", "Add garlic, ginger, peppercorns and chilli.", "Return beans with aminos and toss."]},
+ {"id": "squashbolognese", "meal": "main", "name": "Spaghetti squash bolognese", "blurb": "Roasted squash strands under a rich, slow-cooked ragù.", "mins": 60, "serves": 4, "carbs": 9, "contains": ["beef"], "ing": ["1 spaghetti squash, halved", "500g beef mince", "1 onion, chopped", "1 celery stick, chopped", "2 garlic cloves", "1 tin chopped tomatoes (400g)", "1 tsp oregano", "2 tbsp olive oil"], "steps": ["Roast squash cut-side down at 200°C for 40 minutes.", "Brown mince with onion, celery and garlic.", "Add tomatoes and oregano; simmer 30 minutes.", "Fork squash into strands and top with the sauce."]},
+ {"id": "fishcakes", "meal": "main", "name": "Salmon fishcakes with lemon mayo", "blurb": "Golden almond-crusted fishcakes with a zesty dip.", "mins": 30, "serves": 2, "carbs": 3, "contains": ["fish", "eggs", "nuts"], "ing": ["2 tins salmon (or 300g cooked salmon)", "1 egg", "4 tbsp ground almonds", "2 spring onions, sliced", "1 tbsp chopped dill", "3 tbsp mayonnaise", "1 lemon", "2 tbsp avocado oil"], "steps": ["Mix salmon, egg, half the almonds, spring onion and dill.", "Shape 4 cakes and coat in the remaining almonds.", "Fry 3–4 minutes per side.", "Mix mayo with lemon zest and juice to serve."]},
+ {"id": "eggrollbowl", "meal": "main", "name": "Egg roll in a bowl", "blurb": "All the flavour of a spring roll filling, stir-fried in one pan.", "mins": 20, "serves": 2, "carbs": 6, "contains": ["pork"], "ing": ["400g pork mince", "½ white cabbage, shredded", "1 carrot, grated (small)", "2 garlic cloves", "1 tbsp grated ginger", "3 tbsp coconut aminos", "1 tsp sesame oil", "Spring onions"], "steps": ["Brown pork with garlic and ginger.", "Add cabbage and carrot; stir-fry 5 minutes.", "Season with aminos and sesame oil; top with spring onions."]},
+ {"id": "prosciuttoasparagus", "meal": "snack", "name": "Prosciutto-wrapped asparagus", "blurb": "Salty, crispy ham around tender asparagus spears.", "mins": 15, "serves": 2, "carbs": 2, "contains": ["pork"], "ing": ["12 asparagus spears", "6 slices prosciutto, halved lengthways", "1 tbsp olive oil", "Black pepper"], "steps": ["Wrap each spear in prosciutto.", "Drizzle with oil and roast at 200°C for 10 minutes."]},
+ {"id": "devilledeggs", "meal": "snack", "name": "Devilled eggs", "blurb": "Creamy, mustardy yolks piped back into the whites with paprika.", "mins": 20, "serves": 4, "carbs": 1, "contains": ["eggs"], "ing": ["6 eggs", "3 tbsp mayonnaise", "1 tsp Dijon mustard", "Smoked paprika", "Chives"], "steps": ["Hard-boil eggs 10 minutes; cool and halve.", "Mash yolks with mayo and mustard.", "Spoon back into whites; dust with paprika and chives."]},
+ {"id": "kalecrisps", "meal": "snack", "name": "Salt and vinegar kale crisps", "blurb": "Crunchy, tangy and gone in minutes.", "mins": 20, "serves": 2, "carbs": 2, "contains": [], "ing": ["150g kale, stalks removed", "1 tbsp olive oil", "1 tbsp cider vinegar", "Sea salt"], "steps": ["Massage kale with oil and vinegar.", "Spread on trays and sprinkle with salt.", "Bake at 150°C for 15 minutes until crisp."]},
+ {"id": "marinatedolives", "meal": "snack", "name": "Citrus and herb marinated olives", "blurb": "Dress up a jar of olives in five minutes.", "mins": 5, "serves": 4, "carbs": 1, "contains": [], "ing": ["250g mixed olives", "1 lemon, zested", "1 garlic clove, sliced", "Few sprigs rosemary", "Pinch chilli flakes", "3 tbsp olive oil"], "steps": ["Toss everything together.", "Leave for at least an hour for the flavours to soak in."]},
+ {"id": "salmonrolls", "meal": "snack", "name": "Smoked salmon cucumber rolls", "blurb": "Ribbons of cucumber rolled around smoked salmon and dill.", "mins": 10, "serves": 2, "carbs": 2, "contains": ["fish"], "ing": ["1 cucumber, peeled into long ribbons", "100g smoked salmon", "Fresh dill", "½ lemon", "Black pepper"], "steps": ["Lay a strip of salmon on each cucumber ribbon.", "Add dill, lemon and pepper, then roll up."]},
+ {"id": "celeryalmond", "meal": "snack", "name": "Celery with almond butter", "blurb": "Crunchy and filling. A sprinkle of salt makes it.", "mins": 3, "serves": 1, "carbs": 2, "contains": ["nuts"], "ing": ["3 celery sticks", "2 tbsp almond butter", "Pinch flaky salt"], "steps": ["Fill celery with almond butter and sprinkle with salt."]},
+ {"id": "guacsticks", "meal": "snack", "name": "Chunky guacamole with veg sticks", "blurb": "Lime-sharp guacamole with crunchy peppers and cucumber.", "mins": 10, "serves": 2, "carbs": 4, "contains": [], "ing": ["2 avocados", "1 lime", "¼ red onion, finely chopped", "1 small chilli, chopped", "Coriander", "1 pepper, cut into sticks", "½ cucumber, cut into sticks"], "steps": ["Mash avocados with lime and salt, leaving it chunky.", "Stir in onion, chilli and coriander.", "Serve with the veg sticks."]},
+ {"id": "spicedpecans", "meal": "snack", "name": "Cinnamon-spiced pecans", "blurb": "Warm, toasty pecans with a hint of sweetness.", "mins": 12, "serves": 6, "carbs": 1, "contains": ["nuts"], "ing": ["200g pecans", "1 tbsp coconut oil, melted", "1 tsp cinnamon", "1 tbsp sweetener", "Pinch salt"], "steps": ["Toss pecans with oil, cinnamon, sweetener and salt.", "Roast at 170°C for 8–10 minutes; cool to crisp."]},
+ {"id": "macaroons", "meal": "dessert", "name": "Coconut macaroons", "blurb": "Chewy inside, golden outside, made with egg whites.", "mins": 25, "serves": 12, "carbs": 1, "contains": ["eggs"], "ing": ["2 egg whites", "150g desiccated coconut", "3 tbsp sweetener", "½ tsp vanilla", "Pinch salt"], "steps": ["Whisk egg whites to soft peaks.", "Fold in coconut, sweetener, vanilla and salt.", "Scoop onto a lined tray and bake at 170°C for 15–18 minutes."]},
+ {"id": "lemonballs", "meal": "dessert", "name": "Lemon coconut bliss balls", "blurb": "Zesty no-bake bites for an afternoon pick-me-up.", "mins": 15, "serves": 12, "carbs": 1, "contains": ["nuts"], "ing": ["100g ground almonds", "60g desiccated coconut, plus extra to roll", "2 tbsp coconut oil, melted", "1 lemon, zested and juiced", "2 tbsp sweetener"], "steps": ["Mix everything together into a firm dough.", "Roll into balls, then in coconut.", "Chill 30 minutes."]},
+ {"id": "berriescream", "meal": "dessert", "name": "Berries with whipped coconut cream", "blurb": "A simple bowl of berries under clouds of vanilla coconut cream.", "mins": 10, "serves": 2, "carbs": 6, "contains": [], "ing": ["1 tin coconut milk, chilled overnight", "½ tsp vanilla", "Sweetener to taste", "150g mixed berries"], "steps": ["Scoop the solid cream from the chilled tin.", "Whip with vanilla and sweetener until fluffy.", "Serve over the berries."]},
+ {"id": "chocbark", "meal": "dessert", "name": "Dark chocolate almond bark", "blurb": "Snap-able shards of 85% chocolate with toasted almonds and sea salt.", "mins": 15, "serves": 8, "carbs": 3, "contains": ["nuts"], "ing": ["100g 85% dark chocolate (check it’s dairy-free)", "40g toasted almonds, chopped", "1 tbsp coconut flakes", "Flaky sea salt"], "steps": ["Melt chocolate gently.", "Spread thinly on a lined tray.", "Scatter almonds, coconut and salt; chill until set, then snap."]},
+ {"id": "chocchia", "meal": "dessert", "name": "Chocolate chia pudding", "blurb": "Make-ahead pots that taste like chocolate mousse.", "mins": 5, "serves": 2, "carbs": 4, "contains": [], "ing": ["250ml full-fat coconut milk", "4 tbsp chia seeds", "2 tbsp cocoa powder", "Sweetener to taste", "Pinch salt"], "steps": ["Whisk everything together.", "Chill at least 4 hours; stir once after the first 30 minutes."]},
+ {"id": "mugcake", "meal": "dessert", "name": "90-second chocolate mug cake", "blurb": "Warm, gooey cake for one, straight from the microwave.", "mins": 5, "serves": 1, "carbs": 3, "contains": ["eggs", "nuts"], "ing": ["3 tbsp ground almonds", "1 tbsp cocoa powder", "1 tbsp sweetener", "½ tsp baking powder", "1 egg", "1 tbsp coconut oil, melted"], "steps": ["Mix everything in a large mug.", "Microwave 70–90 seconds until just set."]},
+ {"id": "pannacotta", "meal": "dessert", "name": "Coconut vanilla panna cotta", "blurb": "Silky set cream with a raspberry topping. Uses gelatine, no dairy.", "mins": 15, "serves": 4, "carbs": 4, "contains": [], "ing": ["400ml full-fat coconut milk", "3 gelatine leaves", "1 tsp vanilla", "2 tbsp sweetener", "Handful raspberries"], "steps": ["Soak gelatine in cold water 5 minutes.", "Warm coconut milk with vanilla and sweetener (don’t boil).", "Squeeze gelatine and stir in until dissolved.", "Pour into glasses; chill 4 hours and top with raspberries."]},
+ {"id": "greenshakshuka", "meal": "breakfast", "name": "Green shakshuka", "blurb": "Eggs poached in garlicky spinach, courgette and herbs.", "mins": 20, "serves": 2, "carbs": 4, "contains": ["eggs"], "ing": ["1 courgette, diced", "200g spinach", "2 garlic cloves", "1 tsp cumin", "4 eggs", "2 tbsp olive oil", "Parsley and chilli flakes"], "steps": ["Soften courgette and garlic in oil with cumin.", "Wilt in spinach and season.", "Make 4 wells, crack in eggs, cover and cook 5–6 minutes.", "Top with parsley and chilli."]},
+ {"id": "baconavosalad", "meal": "breakfast", "name": "Bacon and avocado breakfast salad", "blurb": "Warm crispy bacon over avocado, tomato and rocket.", "mins": 12, "serves": 2, "carbs": 4, "contains": ["pork"], "ing": ["6 rashers smoked bacon", "1 avocado, sliced", "8 cherry tomatoes, halved", "2 handfuls rocket", "1 tbsp olive oil", "1 tsp red wine vinegar"], "steps": ["Fry bacon until crisp; chop.", "Arrange rocket, avocado and tomatoes.", "Whisk oil and vinegar into the bacon fat and pour over with the bacon."]},
+ {"id": "coconutpancakes", "meal": "breakfast", "name": "Coconut flour pancakes", "blurb": "Fluffy little pancakes with berries and coconut yoghurt.", "mins": 20, "serves": 2, "carbs": 4, "contains": ["eggs"], "ing": ["3 eggs", "3 tbsp coconut flour", "4 tbsp coconut milk", "½ tsp baking powder", "1 tsp sweetener", "1 tbsp coconut oil", "Berries to serve"], "steps": ["Whisk eggs, coconut flour, coconut milk, baking powder and sweetener; rest 5 minutes.", "Fry small spoonfuls in coconut oil, 2 minutes per side.", "Serve with berries."]},
+ {"id": "herbomelette", "meal": "breakfast", "name": "Mushroom and herb omelette", "blurb": "A soft folded omelette packed with garlicky mushrooms.", "mins": 10, "serves": 1, "carbs": 2, "contains": ["eggs"], "ing": ["3 eggs", "100g mushrooms, sliced", "1 garlic clove", "1 tbsp olive oil", "Chives and parsley"], "steps": ["Fry mushrooms and garlic in oil until golden; remove.", "Pour in beaten eggs and stir gently until almost set.", "Add mushrooms and herbs, fold and serve."]},
+ {"id": "lambpatties", "meal": "breakfast", "name": "Spiced lamb breakfast patties", "blurb": "Sage and fennel lamb patties with wilted greens. Good for batch cooking.", "mins": 20, "serves": 4, "carbs": 1, "contains": ["lamb"], "ing": ["500g lamb mince", "1 tsp fennel seeds", "1 tsp dried sage", "½ tsp chilli flakes", "1 tbsp olive oil", "Spinach to serve"], "steps": ["Mix lamb, fennel, sage, chilli and salt; shape 8 patties.", "Fry 4 minutes per side.", "Serve with wilted spinach."]},
+ {"id": "smokedtrout", "meal": "breakfast", "name": "Smoked trout and avocado plate", "blurb": "Flaky smoked trout with avocado, radish and horseradish-free dill dressing.", "mins": 5, "serves": 1, "carbs": 3, "contains": ["fish"], "ing": ["100g hot-smoked trout", "½ avocado", "3 radishes, sliced", "1 tbsp olive oil", "½ lemon", "Fresh dill"], "steps": ["Flake trout onto a plate with avocado and radish.", "Drizzle with oil, lemon and dill."]},
+ {"id": "jerkpork", "meal": "main", "name": "Jerk pork with lime slaw", "blurb": "Fiery allspice and thyme pork with a cooling cabbage slaw.", "mins": 35, "serves": 2, "carbs": 5, "contains": ["pork"], "ing": ["2 pork shoulder steaks", "1 scotch bonnet, finely chopped (or less)", "1 tsp allspice", "1 tsp dried thyme", "2 garlic cloves", "2 limes", "¼ white cabbage, shredded", "3 tbsp olive oil"], "steps": ["Rub pork with chilli, allspice, thyme, garlic, 1 lime and 1 tbsp oil; rest 10 minutes.", "Grill or griddle 5–6 minutes per side.", "Toss cabbage with remaining lime, oil and salt."]},
+ {"id": "rendang", "meal": "main", "name": "Beef rendang", "blurb": "A rich, dry Malaysian curry where the beef soaks up coconut and spice.", "mins": 150, "serves": 4, "carbs": 6, "contains": ["beef"], "ing": ["800g braising beef, cubed", "400ml coconut milk", "3 tbsp rendang or red curry paste", "2 lemongrass stalks, bashed", "4 lime leaves", "1 tbsp tamarind paste", "2 tbsp desiccated coconut, toasted", "Cauliflower rice to serve"], "steps": ["Fry paste 2 minutes; add beef to coat.", "Add coconut milk, lemongrass, lime leaves and tamarind.", "Simmer uncovered 2 hours, stirring, until thick and dark.", "Stir in toasted coconut; serve with cauli rice."]},
+ {"id": "tandoorisalmon", "meal": "main", "name": "Tandoori-spiced salmon with kachumber", "blurb": "Spice-crusted salmon with a crunchy cucumber, tomato and onion salad.", "mins": 20, "serves": 2, "carbs": 4, "contains": ["fish"], "ing": ["2 salmon fillets", "2 tsp tandoori spice", "1 tbsp olive oil", "1 lemon", "½ cucumber, diced", "2 tomatoes, diced", "¼ red onion, diced", "Coriander"], "steps": ["Rub salmon with spice, oil and half the lemon.", "Roast at 220°C for 10–12 minutes.", "Mix cucumber, tomato, onion, coriander and remaining lemon."]},
+ {"id": "padthai", "meal": "main", "name": "Prawn pad thai with courgette noodles", "blurb": "Tangy, savoury pad thai flavours with almonds standing in for peanuts.", "mins": 20, "serves": 2, "carbs": 8, "contains": ["shellfish", "eggs", "nuts"], "ing": ["200g raw prawns", "2 courgettes, spiralised", "2 eggs", "2 tbsp coconut aminos", "1 tbsp fish sauce", "1 tbsp tamarind paste", "Handful beansprouts", "2 tbsp chopped almonds", "1 lime", "1 tbsp avocado oil"], "steps": ["Stir-fry prawns in oil; push aside and scramble the eggs.", "Add courgetti and beansprouts for 1 minute.", "Toss with aminos, fish sauce and tamarind.", "Top with almonds and lime."]},
+ {"id": "shawarmabowl", "meal": "main", "name": "Lamb shawarma bowl", "blurb": "Spiced lamb strips over salad with tahini and pickled onions.", "mins": 25, "serves": 2, "carbs": 5, "contains": ["lamb"], "ing": ["400g lamb leg steaks, sliced", "2 tsp shawarma spice", "1 tbsp olive oil", "1 red onion, thinly sliced", "2 tbsp red wine vinegar", "Chopped lettuce, cucumber, tomato", "3 tbsp tahini", "1 lemon"], "steps": ["Pickle onion in vinegar with a pinch of salt.", "Toss lamb with spice and oil; sear 3–4 minutes.", "Thin tahini with lemon and water.", "Build bowls and drizzle."]},
+ {"id": "mexbowl", "meal": "main", "name": "Mexican beef burrito bowl", "blurb": "Spiced beef, cauli rice, salsa and guacamole — all the burrito, none of the wrap.", "mins": 25, "serves": 2, "carbs": 7, "contains": ["beef"], "ing": ["400g beef mince", "2 tsp fajita spice", "300g riced cauliflower", "1 lime", "Coriander", "Tomato salsa", "1 avocado", "Shredded lettuce"], "steps": ["Brown beef with spice and a splash of water.", "Fry cauli rice; stir in lime and coriander.", "Build bowls with lettuce, beef, salsa and mashed avocado."]},
+ {"id": "souvlaki", "meal": "main", "name": "Pork souvlaki with Greek salad", "blurb": "Lemon-oregano pork skewers with a feta-free Greek salad.", "mins": 30, "serves": 2, "carbs": 5, "contains": ["pork"], "ing": ["400g pork tenderloin, cubed", "3 tbsp olive oil", "1 lemon", "2 tsp oregano", "2 garlic cloves", "1 cucumber, chunked", "2 tomatoes, chunked", "Handful kalamata olives", "¼ red onion"], "steps": ["Marinate pork in oil, lemon, oregano and garlic for 15 minutes.", "Thread onto skewers; grill 10–12 minutes.", "Toss cucumber, tomato, olives and onion with oil and oregano."]},
+ {"id": "scallops", "meal": "main", "name": "Seared scallops with cauliflower purée", "blurb": "Restaurant-style but quick: sweet scallops on silky cauli purée.", "mins": 20, "serves": 2, "carbs": 5, "contains": ["shellfish"], "ing": ["8 scallops", "½ cauliflower, florets", "3 tbsp olive oil", "1 garlic clove", "1 lemon", "Pea shoots or rocket"], "steps": ["Simmer cauliflower and garlic until soft; blend with 2 tbsp oil and salt.", "Pat scallops dry and sear 90 seconds per side in a very hot pan.", "Spoon purée onto plates, top with scallops, lemon and greens."]},
+ {"id": "haddockcauli", "meal": "main", "name": "Haddock with curried roast cauliflower", "blurb": "Flaky haddock over spiced cauliflower with a lime and coriander finish.", "mins": 30, "serves": 2, "carbs": 6, "contains": ["fish"], "ing": ["2 haddock fillets", "1 cauliflower, florets", "2 tsp curry powder", "3 tbsp olive oil", "Handful spinach", "1 lime", "Coriander"], "steps": ["Toss cauliflower with curry powder and oil; roast at 210°C for 20 minutes.", "Add haddock to the tray for the last 10 minutes.", "Stir spinach through the hot cauliflower; finish with lime and coriander."]},
+ {"id": "meatloaf", "meal": "main", "name": "Classic meatloaf with green beans", "blurb": "Juicy beef meatloaf with a sugar-free tomato glaze.", "mins": 60, "serves": 4, "carbs": 5, "contains": ["beef", "eggs", "nuts"], "ing": ["750g beef mince", "1 egg", "40g ground almonds", "1 onion, grated", "2 garlic cloves", "1 tsp dried thyme", "3 tbsp tomato purée", "1 tbsp apple cider vinegar", "300g green beans"], "steps": ["Mix beef, egg, almonds, onion, garlic, thyme and salt; press into a loaf tin.", "Mix purée and vinegar; spread on top.", "Bake at 180°C for 50 minutes; rest 10.", "Serve with steamed green beans."]},
+ {"id": "cajunshrimp", "meal": "main", "name": "Cajun prawns and peppers", "blurb": "Smoky, spicy prawns with peppers and onions in one pan.", "mins": 15, "serves": 2, "carbs": 6, "contains": ["shellfish"], "ing": ["300g raw king prawns", "2 tsp Cajun seasoning", "2 peppers, sliced", "1 onion, sliced", "2 garlic cloves", "2 tbsp olive oil", "Parsley"], "steps": ["Fry peppers and onion in oil for 6 minutes.", "Add prawns, garlic and Cajun seasoning; cook 3 minutes.", "Scatter with parsley."]},
+ {"id": "lambcourgettes", "meal": "main", "name": "Lamb-stuffed courgette boats", "blurb": "Courgettes filled with spiced lamb and tomato, then roasted.", "mins": 40, "serves": 2, "carbs": 6, "contains": ["lamb"], "ing": ["3 courgettes, halved lengthways", "300g lamb mince", "1 tsp cumin", "1 tsp cinnamon", "2 tbsp tomato purée", "Mint", "Pine nuts (optional)"], "steps": ["Scoop out courgette centres and chop them.", "Brown lamb with spices and chopped courgette; stir in purée.", "Fill courgettes and roast at 200°C for 25 minutes.", "Top with mint."]},
+ {"id": "bulgogi", "meal": "main", "name": "Beef bulgogi bowl", "blurb": "Sweet-savoury Korean beef over cauli rice with quick-pickled veg.", "mins": 25, "serves": 2, "carbs": 7, "contains": ["beef"], "ing": ["350g ribeye, thinly sliced", "3 tbsp coconut aminos", "1 tbsp sesame oil", "2 garlic cloves", "1 tbsp grated ginger", "300g riced cauliflower", "1 carrot, julienned (small)", "½ cucumber", "1 tbsp rice vinegar", "Sesame seeds"], "steps": ["Marinate beef with aminos, sesame oil, garlic and ginger.", "Toss carrot and cucumber with rice vinegar.", "Sear beef in a very hot pan, 2 minutes.", "Serve over fried cauli rice with pickles and sesame seeds."]},
+ {"id": "porktenderloin", "meal": "main", "name": "Pork tenderloin with creamy mushroom sauce", "blurb": "Tender pork medallions in a dairy-free mustard mushroom sauce.", "mins": 30, "serves": 2, "carbs": 5, "contains": ["pork"], "ing": ["1 pork tenderloin, sliced into medallions", "250g mushrooms, sliced", "1 shallot, chopped", "150ml coconut cream", "1 tbsp Dijon mustard", "Thyme", "1 tbsp olive oil"], "steps": ["Sear pork 3 minutes per side; set aside.", "Soften shallot and mushrooms.", "Stir in coconut cream, mustard and thyme.", "Return pork for 3 minutes until cooked through."]},
+ {"id": "mackerelfennel", "meal": "main", "name": "Grilled mackerel with fennel and orange-zest salad", "blurb": "Crisp-skinned mackerel with shaved fennel and a zesty dressing.", "mins": 20, "serves": 2, "carbs": 4, "contains": ["fish"], "ing": ["4 mackerel fillets", "1 fennel bulb, thinly shaved", "1 orange, zested only", "1 lemon", "3 tbsp olive oil", "Handful rocket"], "steps": ["Toss fennel and rocket with lemon juice, zest and 2 tbsp oil.", "Season mackerel and grill skin-side up 4–5 minutes.", "Serve on the salad."]},
+ {"id": "thaibeefsalad", "meal": "main", "name": "Thai beef salad", "blurb": "Rare steak with herbs, cucumber and a hot-sour lime dressing.", "mins": 20, "serves": 2, "carbs": 5, "contains": ["beef"], "ing": ["300g sirloin steak", "1 cucumber, sliced", "Handful mint, coriander and Thai basil", "3 spring onions", "1 red chilli", "2 limes", "1½ tbsp fish sauce", "Little gem leaves"], "steps": ["Sear steak to medium-rare; rest and slice.", "Whisk lime juice, fish sauce and chilli.", "Toss everything together."]},
+ {"id": "venison", "meal": "main", "name": "Venison steaks with juniper mushrooms", "blurb": "Lean venison with garlicky mushrooms and a juniper pan sauce.", "mins": 25, "serves": 2, "carbs": 3, "contains": [], "ing": ["2 venison steaks", "250g mixed mushrooms", "4 juniper berries, crushed", "2 garlic cloves", "Thyme", "100ml beef stock", "2 tbsp olive oil", "Watercress"], "steps": ["Sear venison 3 minutes per side; rest.", "Fry mushrooms, garlic, thyme and juniper.", "Add stock and bubble until syrupy.", "Slice venison over mushrooms with watercress."]},
+ {"id": "pokebowl", "meal": "main", "name": "Salmon poke bowl", "blurb": "Marinated raw salmon over cauli rice with avocado and edamame-free crunch.", "mins": 20, "serves": 2, "carbs": 6, "contains": ["fish"], "ing": ["250g sushi-grade salmon, cubed", "2 tbsp coconut aminos", "1 tsp sesame oil", "300g riced cauliflower", "1 avocado", "½ cucumber", "2 radishes", "Nori strips", "Sesame seeds"], "steps": ["Marinate salmon in aminos and sesame oil for 10 minutes.", "Lightly cook and cool the cauli rice.", "Build bowls with salmon, avocado, cucumber and radish.", "Top with nori and sesame."]},
+ {"id": "caulisteak", "meal": "main", "name": "Cauliflower steaks with chimichurri", "blurb": "Thick roasted cauliflower slices with a bright herb sauce. Plant-based.", "mins": 35, "serves": 2, "carbs": 6, "contains": [], "ing": ["1 large cauliflower", "4 tbsp olive oil", "1 tsp smoked paprika", "Small bunch parsley", "1 garlic clove", "1 tbsp red wine vinegar", "Pinch chilli flakes"], "steps": ["Slice cauliflower into 2cm steaks.", "Brush with 2 tbsp oil and paprika; roast at 220°C for 25 minutes, flipping once.", "Chop parsley and garlic; mix with remaining oil, vinegar and chilli.", "Spoon over the steaks."]},
+ {"id": "auberginecurry", "meal": "main", "name": "Aubergine and coconut curry", "blurb": "Melting aubergine in a mild, creamy curry. Plant-based.", "mins": 35, "serves": 3, "carbs": 8, "contains": [], "ing": ["2 aubergines, cubed", "400ml coconut milk", "2 tbsp curry paste", "1 onion, chopped", "2 garlic cloves", "2 handfuls spinach", "2 tbsp coconut oil", "Coriander"], "steps": ["Fry aubergine in coconut oil until golden; remove.", "Soften onion and garlic; fry paste 1 minute.", "Add coconut milk and aubergine; simmer 15 minutes.", "Stir in spinach and coriander."]},
+ {"id": "roastchicken", "meal": "main", "name": "Lemon and herb roast chicken", "blurb": "A Sunday roast with crispy skin and roasted radishes in place of potatoes.", "mins": 90, "serves": 4, "carbs": 3, "contains": ["poultry"], "ing": ["1 whole chicken (about 1.6kg)", "1 lemon", "4 garlic cloves", "Rosemary and thyme", "3 tbsp olive oil", "300g radishes, halved"], "steps": ["Stuff chicken with lemon, garlic and herbs; rub with oil and salt.", "Roast at 200°C for 1 hour 20 minutes, adding radishes for the last 40.", "Rest 15 minutes before carving."]},
+ {"id": "fajitabowl", "meal": "main", "name": "Chicken fajita bowl", "blurb": "Smoky chicken strips with peppers, guacamole and salsa.", "mins": 25, "serves": 2, "carbs": 7, "contains": ["poultry"], "ing": ["2 chicken breasts, sliced", "2 tsp fajita spice", "2 peppers, sliced", "1 onion, sliced", "1 tbsp olive oil", "1 avocado", "Tomato salsa", "Shredded lettuce"], "steps": ["Toss chicken with spice and oil.", "Fry with peppers and onion 8–10 minutes.", "Serve over lettuce with avocado and salsa."]},
+ {"id": "broccolisoup", "meal": "main", "name": "Broccoli and cheddar soup", "blurb": "Velvety, cheesy soup that’s ready in 25 minutes.", "mins": 25, "serves": 4, "carbs": 6, "contains": ["dairy"], "ing": ["1 large head broccoli, chopped", "1 onion, chopped", "700ml vegetable stock", "150ml double cream", "120g mature cheddar, grated", "1 tbsp butter"], "steps": ["Soften onion in butter.", "Add broccoli and stock; simmer 12 minutes.", "Blend, then stir in cream and cheddar until melted."]},
+ {"id": "leeksoup", "meal": "main", "name": "Cauliflower and leek soup", "blurb": "A creamy, dairy-free soup with crispy bacon-free sage topping.", "mins": 30, "serves": 4, "carbs": 7, "contains": [], "ing": ["1 cauliflower, chopped", "2 leeks, sliced", "2 garlic cloves", "800ml vegetable stock", "200ml coconut milk", "2 tbsp olive oil", "Few sage leaves"], "steps": ["Soften leeks and garlic in oil.", "Add cauliflower and stock; simmer 15 minutes.", "Blend with coconut milk.", "Fry sage leaves until crisp and scatter on top."]},
+ {"id": "beefcabbagesoup", "meal": "main", "name": "Beef and cabbage soup", "blurb": "Hearty, warming and very budget-friendly.", "mins": 40, "serves": 4, "carbs": 6, "contains": ["beef"], "ing": ["500g beef mince", "½ white cabbage, shredded", "1 onion, chopped", "2 celery sticks", "1 tin chopped tomatoes (400g)", "1l beef stock", "1 tsp paprika"], "steps": ["Brown beef with onion and celery.", "Add paprika, tomatoes, stock and cabbage.", "Simmer 25 minutes."]},
+ {"id": "sausagekale", "meal": "main", "name": "Spicy sausage and kale stew", "blurb": "Chorizo-spiked sausage stew with kale. Use high-meat, gluten-free sausages.", "mins": 35, "serves": 4, "carbs": 6, "contains": ["pork"], "ing": ["6 high-meat pork sausages, chunked", "75g cooking chorizo, diced", "1 onion, chopped", "2 garlic cloves", "1 tin chopped tomatoes (400g)", "300ml chicken-free stock", "150g kale, shredded"], "steps": ["Brown sausages and chorizo.", "Add onion and garlic for 5 minutes.", "Pour in tomatoes and stock; simmer 15 minutes.", "Stir in kale for the last 5."]},
+ {"id": "tunanori", "meal": "snack", "name": "Spicy tuna nori rolls", "blurb": "Quick hand rolls with sriracha tuna and cucumber.", "mins": 10, "serves": 2, "carbs": 2, "contains": ["fish", "eggs"], "ing": ["1 tin tuna, drained", "2 tbsp mayonnaise", "1 tsp sriracha", "4 nori sheets", "½ cucumber, cut into sticks", "½ avocado"], "steps": ["Mix tuna, mayo and sriracha.", "Fill nori sheets with tuna, cucumber and avocado.", "Roll up into cones or cylinders."]},
+ {"id": "courgettefries", "meal": "snack", "name": "Crispy courgette fries", "blurb": "Almond-crumbed courgette sticks, baked until golden.", "mins": 30, "serves": 2, "carbs": 4, "contains": ["nuts", "eggs"], "ing": ["2 courgettes, cut into sticks", "1 egg, beaten", "60g ground almonds", "1 tsp garlic powder", "1 tsp smoked paprika", "Olive oil spray"], "steps": ["Dip courgette in egg, then in almonds mixed with spices.", "Spray with oil and bake at 220°C for 20 minutes, turning once."]},
+ {"id": "coconutchips", "meal": "snack", "name": "Toasted coconut chips", "blurb": "Lightly salted and sweet-ish — like crisps for coconut lovers.", "mins": 10, "serves": 4, "carbs": 2, "contains": [], "ing": ["100g coconut flakes", "1 tsp coconut oil, melted", "Pinch salt", "Pinch cinnamon (optional)"], "steps": ["Toss flakes with oil, salt and cinnamon.", "Bake at 160°C for 5–7 minutes, watching closely."]},
+ {"id": "caulihummus", "meal": "snack", "name": "Cauliflower hummus", "blurb": "Silky, chickpea-free hummus with veg sticks.", "mins": 25, "serves": 4, "carbs": 3, "contains": [], "ing": ["½ cauliflower, florets", "3 tbsp tahini", "1 garlic clove", "1 lemon", "3 tbsp olive oil", "½ tsp cumin", "Veg sticks to serve"], "steps": ["Roast cauliflower at 200°C for 20 minutes.", "Blend with tahini, garlic, lemon, oil and cumin until smooth."]},
+ {"id": "raspberrylollies", "meal": "dessert", "name": "Raspberry coconut ice lollies", "blurb": "Creamy, fruity lollies for warm days.", "mins": 10, "serves": 6, "carbs": 3, "contains": [], "ing": ["400ml full-fat coconut milk", "150g raspberries", "2 tbsp sweetener", "1 tsp vanilla"], "steps": ["Blend everything.", "Pour into lolly moulds and freeze at least 5 hours."]},
+ {"id": "brownies", "meal": "dessert", "name": "Fudgy almond flour brownies", "blurb": "Dense, chocolatey squares that keep for days.", "mins": 35, "serves": 12, "carbs": 3, "contains": ["eggs", "nuts"], "ing": ["100g 85% dark chocolate", "80g coconut oil", "3 eggs", "80g sweetener", "60g ground almonds", "2 tbsp cocoa powder", "Pinch salt"], "steps": ["Melt chocolate and coconut oil together.", "Whisk eggs and sweetener until pale; fold in chocolate.", "Fold in almonds, cocoa and salt.", "Bake in a lined tin at 170°C for 20–22 minutes."]},
+ {"id": "cinnamonfatbombs", "meal": "dessert", "name": "Cinnamon roll fat bombs", "blurb": "Cinnamon-swirled coconut butter bites.", "mins": 15, "serves": 12, "carbs": 1, "contains": [], "ing": ["120g coconut butter, softened", "3 tbsp coconut oil", "2 tsp cinnamon", "2 tbsp sweetener", "½ tsp vanilla"], "steps": ["Mix coconut butter with 2 tbsp coconut oil, vanilla and half the sweetener.", "Mix remaining oil, sweetener and cinnamon.", "Spoon into moulds, swirl cinnamon mix on top, freeze 1 hour."]},
+ {"id": "cheesecakepots", "meal": "dessert", "name": "Lemon cheesecake pots", "blurb": "Zesty cream cheese filling over a nutty crumb base.", "mins": 15, "serves": 4, "carbs": 4, "contains": ["dairy", "nuts"], "ing": ["60g ground almonds", "2 tbsp butter, melted", "200g cream cheese", "100ml double cream", "1 lemon, zested and juiced", "2 tbsp sweetener"], "steps": ["Mix almonds and butter; press into 4 glasses.", "Whip cream cheese, cream, lemon and sweetener.", "Spoon on top and chill 1 hour."]}
+];
+
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+
+let excluded = new Set(store.get("kd-excluded",["poultry","dairy"]));
+let meal = store.get("kd-meal","all");
+let saved = new Set(store.get("kd-saved",[]));
+let week = store.get("kd-week",[]);
+let ticked = new Set(store.get("kd-ticked",[]));
+let seen = new Set(store.get("kd-seen",[]));
+let aiRecipes = store.get("kd-ai",[]);
+let hand = [];
+let openId = null;
+
+const $ = s => document.querySelector(s);
+
+let EXTRA = store.get("kd-extra",[]);
+const NEW_DAYS = 10;
+function isNew(r){ if(!r.added) return false; const t=Date.parse(r.added); return !isNaN(t) && (Date.now()-t) < NEW_DAYS*864e5 && Date.now()>=t; }
+function allRecipes(){ const ids=new Set(R.map(r=>r.id)); return [...aiRecipes, ...EXTRA.filter(r=>!ids.has(r.id)), ...R]; }
+function eligible(){
+  if(meal==="week"){ const all=allRecipes(); return week.map(id=>all.find(r=>r.id===id)).filter(Boolean); }
+  return allRecipes().filter(r => !r.contains.some(c => excluded.has(c)))
+    .filter(r => meal==="all" || (meal==="saved" ? saved.has(r.id) : meal==="new" ? isNew(r) : r.meal===meal));
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a; }
+
+function deal(){
+  const pool = eligible();
+  if(meal==="saved"||meal==="week"||meal==="new"){ hand = pool; openId=null; render(true); return; }
+  let unseen = pool.filter(r => !seen.has(r.id));
+  if(unseen.length < Math.min(4,pool.length)){ pool.forEach(r=>seen.delete(r.id)); unseen = pool.filter(r=>!hand.some(h=>h.id===r.id)); if(!unseen.length) unseen=pool.slice(); }
+  hand = shuffle(unseen.slice()).sort((a,b)=>isNew(b)-isNew(a)).slice(0,4);
+  hand.forEach(r=>seen.add(r.id));
+  store.set("kd-seen",[...seen]);
+  openId = null;
+  render(true);
+}
+
+function renderFilters(){
+  const f = $("#filters"); f.textContent="";
+  FILTERS.forEach(x=>{
+    const b=document.createElement("button");
+    b.className="chip"; b.textContent=x.label;
+    b.setAttribute("aria-pressed",excluded.has(x.k));
+    b.addEventListener("click",()=>{
+      excluded.has(x.k)?excluded.delete(x.k):excluded.add(x.k);
+      store.set("kd-excluded",[...excluded]); renderFilters(); deal();
+    });
+    f.appendChild(b);
+  });
+}
+function renderMeals(){
+  const m=$("#meals"); m.textContent="";
+  const newCount=allRecipes().filter(isNew).length;
+  if(meal==="new"&&!newCount){meal="all";}
+  MEALS.forEach(x=>{
+    if(x.k==="new"&&!newCount) return;
+    const b=document.createElement("button");
+    b.className="meal"; b.setAttribute("role","tab"); const n = x.k==="saved"?saved.size:x.k==="week"?week.length:x.k==="new"?newCount:0; b.textContent=x.label + (n?` (${n})`:"");
+    b.setAttribute("aria-selected",meal===x.k);
+    b.addEventListener("click",()=>{meal=x.k;store.set("kd-meal",meal);renderMeals();deal();});
+    m.appendChild(b);
+  });
+}
+
+function render(animate){
+  const h=$("#hand"); h.textContent="";
+  renderShop();
+  document.querySelector(".deal-bar").hidden = meal==="week";
+  const pool=eligible().length;
+  $("#count").textContent = (meal==="saved"||meal==="week") ? "" : `${pool} recipe${pool===1?"":"s"} match`;
+  if(!hand.length){
+    const e=document.createElement("div"); e.className="empty";
+    e.textContent = meal==="week" ? "No recipes planned yet. Open any recipe and tap “Add to this week” — your shopping list builds itself here." : meal==="saved" ? "Nothing saved yet. Tap “Save” on any recipe to keep it here." : "No recipes match these filters. Turn one off to see more.";
+    h.appendChild(e); return;
+  }
+  hand.forEach((r,i)=>{
+    const c=document.createElement("article"); c.className="card"+(animate?" new":""); if(animate) c.style.animationDelay=(i*70)+"ms";
+    const head=document.createElement("button"); head.className="card-head"; head.setAttribute("aria-expanded",openId===r.id);
+    head.innerHTML = `<div>${r.ai?'<span class="fresh">Freshly invented</span>':isNew(r)?'<span class="fresh">New this week</span>':""}<h2></h2><p class="blurb"></p>
+      <div class="stats"><span><b>${r.mins}</b> min</span><span>Serves <b>${r.serves}</b></span>${week.includes(r.id)?'<span class="inweek">✓ This week</span>':""}</div></div>
+      <div class="carb" aria-label="${r.carbs} grams net carbs per serving"><strong>${r.carbs}g</strong><span>net carbs</span></div>`;
+    head.querySelector("h2").textContent=r.name;
+    head.querySelector(".blurb").textContent=r.blurb;
+    head.addEventListener("click",()=>{openId = openId===r.id?null:r.id; render(false);});
+    c.appendChild(head);
+    if(openId===r.id){
+      const d=document.createElement("div"); d.className="detail";
+      const h3a=document.createElement("h3"); h3a.textContent="Ingredients"; d.appendChild(h3a);
+      const ul=document.createElement("ul"); r.ing.forEach(t=>{const li=document.createElement("li");li.textContent=t;ul.appendChild(li)}); d.appendChild(ul);
+      const h3b=document.createElement("h3"); h3b.textContent="Method"; d.appendChild(h3b);
+      const ol=document.createElement("ol"); r.steps.forEach(t=>{const li=document.createElement("li");li.textContent=t;ol.appendChild(li)}); d.appendChild(ol);
+      const act=document.createElement("div"); act.className="card-actions";
+      const fav=document.createElement("button"); fav.className="fav"; fav.setAttribute("aria-pressed",saved.has(r.id));
+      fav.textContent = saved.has(r.id) ? "♥ Saved" : "♡ Save";
+      fav.addEventListener("click",()=>{saved.has(r.id)?saved.delete(r.id):saved.add(r.id);store.set("kd-saved",[...saved]);renderMeals();render(false);});
+      const wk=document.createElement("button"); wk.className="wk"; const inW=week.includes(r.id);
+      wk.setAttribute("aria-pressed",inW); wk.textContent = inW ? "✓ In this week" : "+ Add to this week";
+      wk.addEventListener("click",()=>{week = inW ? week.filter(id=>id!==r.id) : [...week, r.id]; store.set("kd-week",week); if(meal==="week"){hand=eligible();} renderMeals(); render(false);});
+      act.appendChild(wk); act.appendChild(fav); d.appendChild(act);
+      c.appendChild(d);
+    }
+    h.appendChild(c);
+  });
+}
+
+// ---------- Shopping list ----------
+const FRAC={"½":.5,"¼":.25,"¾":.75};
+const SECTIONS=["Fruit & veg","Meat & fish","Fridge","Cupboard"];
+const CUPBOARD=["sauce","oil","vinegar","paste","purée","stock","aminos","powder","cumin","coriander seed","paprika","oregano","flakes","salt","black pepper","seeds","tahini","mayonnaise","mustard","capers","olives","sweetener","vanilla","cocoa","coconut milk","yeast","almond butter","tin ","jar ","gherkin","sun-dried","almonds","pine nuts","flaxseed","caraway","brine","thyme","chia"];
+const MEAT=["beef","steak","sirloin","lamb","pork","bacon","chorizo","chicken","turkey","salmon","cod","tuna","mackerel","sardine","prawn","mussel","ribs","mince","shrimp","fish"];
+const FRIDGE=["egg","butter","cream","parmesan","halloumi","cheese","yogurt","guacamole","salsa"];
+function section(name){
+  const n=" "+name.toLowerCase()+" ";
+  if(CUPBOARD.some(k=>n.includes(k))) return "Cupboard";
+  if(FRIDGE.some(k=>n.includes(k))) return "Fridge";
+  if(MEAT.some(k=>n.includes(k))) return "Meat & fish";
+  return "Fruit & veg";
+}
+function parseIng(s){
+  const t=s.replace(/\([^)]*\)/g,"").replace(/\s+/g," ").trim();
+  const m=t.match(/^(\d+(?:\.\d+)?)?([½¼¾])?(?:\s*(kg|g|ml|l|tbsp|tsp)(?=\s))?\s+(.+)$/i);
+  if(!m||(!m[1]&&!m[2])) return {qty:null,unit:"",name:t.split(",")[0].trim()};
+  let qty=(m[1]?parseFloat(m[1]):0)+(m[2]?FRAC[m[2]]:0);
+  let unit=(m[3]||"").toLowerCase();
+  if(unit==="kg"){qty*=1000;unit="g";} if(unit==="l"){qty*=1000;unit="ml";}
+  return {qty,unit,name:m[4].split(",")[0].trim()};
+}
+function fmtQty(q,unit){
+  if(q==null) return "";
+  if(unit==="g"&&q>=1000) return (Math.round(q/100)/10)+"kg";
+  if(unit==="ml"&&q>=1000) return (Math.round(q/100)/10)+"l";
+  const whole=Math.floor(q), frac=Math.round((q-whole)*4)/4;
+  const fs={0:"",0.25:"¼",0.5:"½",0.75:"¾",1:""}[frac] ?? "";
+  const w=frac===1?whole+1:whole;
+  const num=(w||!fs?w:"")+fs;
+  return unit ? num+(unit==="tbsp"||unit==="tsp"?" "+unit:unit) : num+"×";
+}
+function buildList(){
+  const recs=eligible(); const map=new Map();
+  recs.forEach(r=>r.ing.forEach(s=>{
+    const p=parseIng(s); const base=p.name.toLowerCase().replace(/s$/,"");
+    const key=base+"|"+p.unit+"|"+(p.qty==null?"x":"q");
+    const cur=map.get(key);
+    if(cur){ if(p.qty!=null) cur.qty+=p.qty; if(p.name.length>cur.name.length) cur.name=p.name; if(!cur.for.includes(r.name)) cur.for.push(r.name); }
+    else map.set(key,{key,qty:p.qty,unit:p.unit,name:p.name,for:[r.name],sec:section(p.name)});
+  }));
+  return [...map.values()];
+}
+function listText(items){
+  return SECTIONS.map(sec=>{
+    const its=items.filter(i=>i.sec===sec&&!ticked.has(i.key)); if(!its.length) return "";
+    return sec+"\n"+its.map(i=>"- "+(i.qty!=null?fmtQty(i.qty,i.unit)+" ":"")+i.name).join("\n");
+  }).filter(Boolean).join("\n\n");
+}
+function renderShop(){
+  const box=$("#shop");
+  if(meal!=="week"||!eligible().length){ box.hidden=true; box.textContent=""; return; }
+  box.hidden=false; box.textContent="";
+  const items=buildList();
+  const left=items.filter(i=>!ticked.has(i.key)).length;
+  const head=document.createElement("div"); head.className="shop-head";
+  head.innerHTML=`<h2>Shopping list</h2><span>${left} of ${items.length} left</span>`;
+  box.appendChild(head);
+  const note=document.createElement("p"); note.className="shop-note";
+  const nr=eligible().length; note.textContent=`Everything for your ${nr} recipe${nr===1?"":"s"}, with matching items combined. Tick things off as you shop.`;
+  box.appendChild(note);
+  SECTIONS.forEach(sec=>{
+    const its=items.filter(i=>i.sec===sec); if(!its.length) return;
+    const h=document.createElement("h3"); h.textContent=sec; box.appendChild(h);
+    const ul=document.createElement("ul"); ul.className="shop-list";
+    its.forEach(i=>{
+      const li=document.createElement("li"); const lab=document.createElement("label");
+      const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=ticked.has(i.key);
+      cb.addEventListener("change",()=>{cb.checked?ticked.add(i.key):ticked.delete(i.key); store.set("kd-ticked",[...ticked]); renderShop();});
+      const sp=document.createElement("span");
+      if(i.qty!=null){const q=document.createElement("span"); q.className="qty"; q.textContent=fmtQty(i.qty,i.unit); sp.appendChild(q);} 
+      sp.appendChild(document.createTextNode(i.name));
+      const f=document.createElement("span"); f.className="for"; f.textContent="For "+i.for.join(", "); sp.appendChild(f);
+      lab.appendChild(cb); lab.appendChild(sp); li.appendChild(lab); ul.appendChild(li);
+    });
+    box.appendChild(ul);
+  });
+  const acts=document.createElement("div"); acts.className="shop-actions";
+  const copy=document.createElement("button"); copy.className="primary"; copy.textContent="Copy list";
+  copy.addEventListener("click",async()=>{
+    const text="J & K’s Keto Meals shopping list\n\n"+listText(items);
+    try{ if(navigator.share){ await navigator.share({title:"Shopping list",text}); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
+    try{ await navigator.clipboard.writeText(text); copy.textContent="Copied"; setTimeout(()=>copy.textContent="Copy list",1800); }
+    catch(e){ let ta=box.querySelector("textarea"); if(!ta){ta=document.createElement("textarea"); ta.setAttribute("aria-label","Shopping list text"); box.appendChild(ta);} ta.value=text; ta.focus(); ta.select(); copy.textContent="Select all and copy"; }
+  });
+  const untick=document.createElement("button"); untick.textContent="Untick all";
+  untick.addEventListener("click",()=>{ticked.clear(); store.set("kd-ticked",[]); renderShop();});
+  const clear=document.createElement("button"); clear.textContent="Start a new week";
+  clear.addEventListener("click",()=>{ if(!confirm("Remove all recipes from this week and clear the list?")) return; week=[]; ticked.clear(); store.set("kd-week",[]); store.set("kd-ticked",[]); hand=[]; renderMeals(); render(false); });
+  acts.append(copy,untick,clear); box.appendChild(acts);
+}
+
+$("#deal").addEventListener("click",()=>{
+  const b=$("#deal"); b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin");
+  $("#status").textContent=""; deal();
+});
+
+
+renderFilters(); renderMeals(); deal();
+
+// Weekly new recipes: loaded from recipes-extra.json next to the app (when hosted)
+function validExtra(r){ return r && typeof r.id==="string" && typeof r.name==="string" && Array.isArray(r.ing) && Array.isArray(r.steps) && Array.isArray(r.contains) && ["breakfast","main","snack","dessert"].includes(r.meal); }
+if(location.protocol.startsWith("http")){
+  fetch("recipes-extra.json",{cache:"no-cache"}).then(res=>res.ok?res.json():null).then(list=>{
+    if(!Array.isArray(list)) return;
+    const clean=list.filter(validExtra).map(r=>({...r,carbs:+r.carbs||0,mins:+r.mins||20,serves:+r.serves||2,blurb:r.blurb||""}));
+    const before=new Set(EXTRA.map(r=>r.id));
+    EXTRA=clean; store.set("kd-extra",EXTRA);
+    const fresh=clean.filter(r=>!before.has(r.id)&&isNew(r)&&!r.contains.some(c=>excluded.has(c)));
+    renderMeals();
+    if(fresh.length){ deal(); $("#status").className="status"; $("#status").textContent=`${fresh.length} new recipe${fresh.length===1?"":"s"} this week. Find them all under “New this week”.`; }
+  }).catch(()=>{});
+}
+
+// Install as an app + work offline
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+let installPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;$("#install").hidden=false;});
+$("#install").addEventListener("click",async()=>{ if(!installPrompt) return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt=null; $("#install").hidden=true; });
+window.addEventListener("appinstalled",()=>{$("#install").hidden=true;});
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent), standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+if(isIOS&&!standalone){ $("#ioshint").hidden=false; }
+
+</script>
+</body>
+</html>

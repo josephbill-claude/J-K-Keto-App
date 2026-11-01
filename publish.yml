@@ -1,0 +1,58 @@
+name: Weekly recipes and publish
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # Every Monday at 06:00 UTC
+  workflow_dispatch:      # "Run workflow" button for a manual run
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  recipes:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Write this week's recipes
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/generate-recipes.mjs
+      - name: Bump offline cache so phones pick up the change
+        run: sed -i -E "s/const CACHE = \"[^\"]+\";/const CACHE = \"jk-keto-$(date +%Y%m%d)\";/" site/sw.js
+      - name: Save to the repository
+        run: |
+          git config user.name "weekly-recipes-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add site
+          git diff --cached --quiet && echo "No changes" || (git commit -m "New recipes for week of $(date +%Y-%m-%d)" && git push)
+
+  deploy:
+    needs: recipes
+    if: always() && (needs.recipes.result == 'success' || needs.recipes.result == 'skipped')
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
